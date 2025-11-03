@@ -4,12 +4,12 @@
 // TODO 1: Create a state object with 'items' array
 // HINT: Start with an empty array
 const state = {
-    // Your code here
+    items: []
 };
 
 // TODO 2: Create an updateState function
 function updateState(changes) {
-    // Your code here
+    Object.assign(state, changes);
 }
 
 // TODO 3: Create a render function
@@ -20,13 +20,20 @@ function updateState(changes) {
 // - Display total with 2 decimal places
 function render() {
     // Calculate total
-    // Your code here
-    
+    const total = state.items.reduce((sum, item) => sum + item.price, 0);
+
     // Create HTML for items
-    // Your code here
-    
+    const itemsHTML = state.items.map(item => {
+        return `<div>${item.name} - $${item.price.toFixed(2)} <button class="remove-btn" data-id="${item.id}">Remove</button></div>`;
+    }).join('');
+
     // Update display
-    // Your code here
+    const cartDisplay = document.getElementById('display');
+    cartDisplay.innerHTML = itemsHTML;
+
+    const totalDiv = document.createElement('div');
+    totalDiv.textContent = `Total: $${total.toFixed(2)}`;
+    cartDisplay.appendChild(totalDiv);
 }
 
 // TODO 4: Add event listeners to product buttons
@@ -34,13 +41,33 @@ function render() {
 // For each button, get data-name and data-price attributes
 // Create item object with: { id: Date.now(), name, price: parseFloat(price) }
 // Add to cart: updateState({ items: [...state.items, newItem] })
-// Your code here
+const productButtons = document.querySelectorAll('.product-btn');
+productButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const name = button.getAttribute('data-name');
+        const price = button.getAttribute('data-price');
+        const newItem = {
+            id: Date.now(),
+            name: name,
+            price: parseFloat(price)
+        };
+        updateState({ items: [...state.items, newItem] });
+        render();
+    });
+});
 
 // TODO 5: Add event listener for remove buttons (event delegation)
 // HINT: Add listener to #display, check if clicked element has 'remove-btn' class
 // Get the item id from data-id attribute
 // Remove item: updateState({ items: state.items.filter(item => item.id !== id) })
-// Your code here
+const cartDisplay = document.getElementById('display');
+cartDisplay.addEventListener('click', (event) => {
+    if (event.target.classList.contains('remove-btn')) {
+        const id = event.target.getAttribute('data-id');
+        updateState({ items: state.items.filter(item => item.id !== id) });
+        render();
+    }
+});
 
 // TODO 6: Call render() initially
-// Your code here
+render();
